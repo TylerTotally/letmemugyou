@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block head %}
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
+<style>
+    .checkout-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+    }
+
+    .checkout-form {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        padding: 2rem;
+    }
+
+    .checkout-form h2 {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .order-summary {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        padding: 1.5rem;
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+    }
+
+    .order-summary h3 {
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .summary-item {
+        display: flex;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .summary-item img {
+        width: 50px;
+        height: 40px;
+        object-fit: contain;
+        border-radius: 4px;
+        background: #f5f5f5;
+    }
+
+    .summary-item-details {
+        flex: 1;
+    }
+
+    .summary-item-name {
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .summary-item-qty {
+        font-size: 0.8rem;
+        color: var(--text-light);
+    }
+
+    .summary-item-price {
+        font-weight: 500;
+    }
+
+    .summary-totals {
+        margin-top: 1rem;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+    }
+
+    .summary-total {
+        font-size: 1.25rem;
+        font-weight: bold;
+        border-top: 2px solid var(--primary-color);
+        padding-top: 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    #paypal-button-container {
+        margin-top: 1.5rem;
+    }
+
+    .payment-processing {
+        text-align: center;
+        padding: 2rem;
+        display: none;
+    }
+
+    .payment-processing.active {
+        display: block;
+    }
+
+    @media (max-width: 800px) {
+        .checkout-container {
+            grid-template-columns: 1fr;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .order-summary {
+            position: static;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="checkout-form">
+        <h2>Shipping Information</h2>
+
+        <form id="checkout-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="business_name">Business Name (Optional)</label>
+                    <input type="text" id="business_name" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="address_line1">Address Line 1 *</label>
+                <input type="text" id="address_line1" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="address_line2">Address Line 2</label>
+                <input type="text" id="address_line2" class="form-control">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="city">City *</label>
+                    <input type="text" id="city" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="state">State *</label>
+                    <input type="text" id="state" class="form-control" required maxlength="2" placeholder="e.g. CA">
+                </div>
+            </div>
+
+            <div class="form-group" style="max-width: 200px;">
+                <label for="zip_code">ZIP Code *</label>
+                <input type="text" id="zip_code" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Order Notes (Optional)</label>
+                <textarea id="notes" class="form-control" rows="3" placeholder="Any special instructions..."></textarea>
+            </div>
+        </form>
+
+        <h2 style="margin-top: 2rem;">Payment</h2>
+        <div id="paypal-button-container"></div>
+
+        <div id="payment-processing" class="payment-processing">
+            <p>Processing your payment...</p>
+        </div>
+    </div>
+
+    <div class="order-summary">
+        <h3>Order Summary</h3>
+
+        {% for item in cart %}
+        <div class="summary-item">
+            {% if item.preview_data_url %}
+            <img src="{{ item.preview_data_url }}" alt="Preview">
+            {% else %}
+            <img src="{{ item.image_url }}" alt="{{ item.product_name }}">
+            {% endif %}
+            <div class="summary-item-details">
+                <div class="summary-item-name">{{ item.product_name }}</div>
+                <div class="summary-item-qty">Qty: {{ item.quantity }}</div>
+            </div>
+            <div class="summary-item-price">${{ "%.2f"|format(item.line_total) }}</div>
+        </div>
+        {% endfor %}
+
+        <div class="summary-totals">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>${{ "%.2f"|format(totals.subtotal) }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax:</span>
+                <span>${{ "%.2f"|format(totals.tax) }}</span>
+            </div>
+            <div class="summary-row summary-total">
+                <span>Total:</span>
+                <span>${{ "%.2f"|format(totals.total) }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function getCustomerInfo() {
+    return {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        business_name: document.getElementById('business_name').value,
+        address_line1: document.getElementById('address_line1').value,
+        address_line2: document.getElementById('address_line2').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        zip_code: document.getElementById('zip_code').value,
+        notes: document.getElementById('notes').value
+    };
+}
+
+function validateForm() {
+    const required = ['name', 'email', 'address_line1', 'city', 'state', 'zip_code'];
+    for (const field of required) {
+        const el = document.getElementById(field);
+        if (!el.value.trim()) {
+            el.focus();
+            alert('Please fill in all required fields.');
+            return false;
+        }
+    }
+    return true;
+}
+
+paypal.Buttons({
+    createOrder: function(data, actions) {
+        if (!validateForm()) {
+            return Promise.reject(new Error('Form validation failed'));
+        }
+
+        return fetch('/api/paypal/create-order', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            return data.orderID;
+        });
+    },
+
+    onApprove: function(data, actions) {
+        document.getElementById('payment-processing').classList.add('active');
+
+        return fetch('/api/paypal/capture-order', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                orderID: data.orderID,
+                customer: getCustomerInfo()
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            window.location.href = result.redirect;
+        })
+        .catch(error => {
+            document.getElementById('payment-processing').classList.remove('active');
+            alert('Payment failed: ' + error.message);
+        });
+    },
+
+    onError: function(err) {
+        console.error('PayPal error:', err);
+        alert('An error occurred with PayPal. Please try again.');
+    }
+}).render('#paypal-button-container');
+</script>
+{% endblock %}

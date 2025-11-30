@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block head %}
+<style>
+    .cart-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .cart-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+    }
+
+    .cart-empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .cart-items {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .cart-item {
+        display: grid;
+        grid-template-columns: 120px 1fr auto;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        border-bottom: 1px solid #eee;
+        align-items: center;
+    }
+
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+
+    .cart-item-preview {
+        width: 120px;
+        height: 90px;
+        object-fit: contain;
+        border-radius: var(--radius);
+        background: #f5f5f5;
+    }
+
+    .cart-item-details h4 {
+        margin-bottom: 0.5rem;
+    }
+
+    .cart-item-details p {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .cart-item-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+    }
+
+    .cart-item-price {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .quantity-control input {
+        width: 60px;
+        text-align: center;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: var(--radius);
+    }
+
+    .remove-btn {
+        color: var(--accent-color);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .remove-btn:hover {
+        text-decoration: underline;
+    }
+
+    .cart-summary {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .cart-summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+    }
+
+    .cart-summary-total {
+        font-size: 1.5rem;
+        font-weight: bold;
+        border-top: 2px solid var(--primary-color);
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .checkout-btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.2rem;
+        margin-top: 1rem;
+    }
+
+    @media (max-width: 600px) {
+        .cart-item {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .cart-item-preview {
+            margin: 0 auto;
+        }
+
+        .cart-item-actions {
+            align-items: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <h1 style="margin-bottom: 1.5rem;">Shopping Cart</h1>
+
+    {% if not cart %}
+    <div class="cart-empty">
+        <div class="cart-empty-icon">&#128722;</div>
+        <h2>Your cart is empty</h2>
+        <p style="margin-bottom: 1.5rem;">Add some custom products to get started!</p>
+        <a href="{{ url_for('main.configurator') }}" class="btn btn-primary">Design a Product</a>
+    </div>
+    {% else %}
+    <div class="cart-items">
+        {% for item in cart %}
+        <div class="cart-item" data-item-id="{{ item.id }}">
+            {% if item.preview_data_url %}
+            <img src="{{ item.preview_data_url }}" alt="Product preview" class="cart-item-preview">
+            {% else %}
+            <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="cart-item-preview">
+            {% endif %}
+
+            <div class="cart-item-details">
+                <h4>{{ item.product_name }}</h4>
+                {% if item.size %}
+                <p>Size: {{ item.size }}</p>
+                {% endif %}
+                <p>Unit Price: ${{ "%.2f"|format(item.unit_price) }}</p>
+            </div>
+
+            <div class="cart-item-actions">
+                <div class="cart-item-price">${{ "%.2f"|format(item.line_total) }}</div>
+                <div class="quantity-control">
+                    <label>Qty:</label>
+                    <input type="number" value="{{ item.quantity }}" min="1" max="1000"
+                           onchange="updateQuantity('{{ item.id }}', this.value)">
+                </div>
+                <button class="remove-btn" onclick="removeItem('{{ item.id }}')">Remove</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="cart-summary">
+        <div class="cart-summary-row">
+            <span>Subtotal:</span>
+            <span id="subtotal">${{ "%.2f"|format(totals.subtotal) }}</span>
+        </div>
+        <div class="cart-summary-row">
+            <span>Tax ({{ "%.1f"|format(totals.tax_rate * 100) }}%):</span>
+            <span id="tax">${{ "%.2f"|format(totals.tax) }}</span>
+        </div>
+        <div class="cart-summary-row cart-summary-total">
+            <span>Total:</span>
+            <span id="total">${{ "%.2f"|format(totals.total) }}</span>
+        </div>
+        <a href="{{ url_for('cart.checkout') }}" class="btn btn-primary checkout-btn">Proceed to Checkout</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateQuantity(itemId, quantity) {
+    fetch('/cart/update', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({item_id: itemId, quantity: parseInt(quantity)})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+
+function removeItem(itemId) {
+    if (confirm('Remove this item from your cart?')) {
+        fetch('/cart/remove', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({item_id: itemId})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

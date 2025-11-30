@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280">
+  <defs>
+    <linearGradient id="glass" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e8e8e8;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.95"/>
+      <stop offset="100%" style="stop-color:#e8e8e8;stop-opacity:0.9"/>
+    </linearGradient>
+  </defs>
+  <!-- Glass body - pint glass shape -->
+  <path d="M35 30 L28 250 C28 265 132 265 132 250 L125 30 C125 25 35 25 35 30 Z" fill="url(#glass)" stroke="#ccc" stroke-width="2"/>
+  <!-- Glass rim -->
+  <ellipse cx="80" cy="28" rx="45" ry="8" fill="none" stroke="#bbb" stroke-width="2"/>
+  <!-- Highlight -->
+  <path d="M45 50 Q40 150 42 230" stroke="#fff" stroke-width="3" fill="none" opacity="0.5"/>
+  <!-- Label -->
+  <text x="80" y="150" text-anchor="middle" font-family="Arial" font-size="14" fill="#888">Pint</text>
+  <text x="80" y="168" text-anchor="middle" font-family="Arial" font-size="12" fill="#aaa">Glass</text>
+</svg>

@@ -1,0 +1,77 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h2>Products</h2>
+    <a href="{{ url_for('admin.add_product') }}" class="btn btn-success">+ Add Product</a>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        {% if products %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Sizes</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        {% if product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                             style="width: 60px; height: 45px; object-fit: contain; border-radius: 4px; background: #f5f5f5;">
+                        {% else %}
+                        <div style="width: 60px; height: 45px; background: #f5f5f5; border-radius: 4px;"></div>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ product.name }}</strong></td>
+                    <td>{{ product.category }}</td>
+                    <td>${{ "%.2f"|format(product.base_price) }}</td>
+                    <td>{{ product.get_sizes() | join(', ') or '-' }}</td>
+                    <td>
+                        <button class="btn btn-sm {{ 'btn-success' if product.active else 'btn-danger' }}"
+                                onclick="toggleProduct({{ product.id }})" id="toggle-{{ product.id }}">
+                            {{ 'Active' if product.active else 'Inactive' }}
+                        </button>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-primary btn-sm">Edit</a>
+                        <form method="POST" action="{{ url_for('admin.delete_product', product_id=product.id) }}"
+                              style="display: inline;" onsubmit="return confirm('Delete this product?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="padding: 2rem; text-align: center; color: #666;">No products yet. Add your first product!</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleProduct(productId) {
+    fetch(`/admin/products/${productId}/toggle`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const btn = document.getElementById(`toggle-${productId}`);
+                btn.textContent = data.active ? 'Active' : 'Inactive';
+                btn.className = `btn btn-sm ${data.active ? 'btn-success' : 'btn-danger'}`;
+            }
+        });
+}
+</script>
+{% endblock %}

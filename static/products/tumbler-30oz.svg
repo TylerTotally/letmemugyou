@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 320">
+  <defs>
+    <linearGradient id="steel" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a8a8a8"/>
+      <stop offset="50%" style="stop-color:#d4d4d4"/>
+      <stop offset="100%" style="stop-color:#a8a8a8"/>
+    </linearGradient>
+  </defs>
+  <!-- Tumbler body -->
+  <path d="M40 50 L52 300 C52 310 148 310 148 300 L160 50 C160 40 40 40 40 50 Z" fill="url(#steel)" stroke="#888" stroke-width="2"/>
+  <!-- Lid -->
+  <ellipse cx="100" cy="45" rx="60" ry="15" fill="#333" stroke="#222" stroke-width="2"/>
+  <ellipse cx="100" cy="40" rx="50" ry="10" fill="#444"/>
+  <!-- Handle/Straw hole -->
+  <circle cx="100" cy="40" r="8" fill="#222"/>
+  <!-- Label -->
+  <text x="100" y="180" text-anchor="middle" font-family="Arial" font-size="16" fill="#666">30oz</text>
+  <text x="100" y="200" text-anchor="middle" font-family="Arial" font-size="12" fill="#888">Tumbler</text>
+</svg>

@@ -1,0 +1,54 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 1.5rem;">Settings</h2>
+
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">Store Settings</div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-group">
+                <label for="paypal_mode">PayPal Mode</label>
+                <select id="paypal_mode" name="paypal_mode" class="form-control">
+                    <option value="sandbox" {{ 'selected' if paypal_mode == 'sandbox' }}>Sandbox (Testing)</option>
+                    <option value="live" {{ 'selected' if paypal_mode == 'live' }}>Live (Production)</option>
+                </select>
+                <small style="color: #666;">
+                    Use Sandbox for testing, Live for real payments.<br>
+                    <strong style="color: var(--danger);">Warning:</strong> Live mode processes real payments!
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="tax_rate">Tax Rate (decimal)</label>
+                <input type="text" id="tax_rate" name="tax_rate" class="form-control"
+                       value="{{ tax_rate }}" placeholder="0.0825">
+                <small style="color: #666;">Enter as decimal (e.g., 0.0825 for 8.25%)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="admin_email">Admin Email (for notifications)</label>
+                <input type="email" id="admin_email" name="admin_email" class="form-control"
+                       value="{{ admin_email }}" placeholder="admin@example.com">
+            </div>
+
+            <button type="submit" class="btn btn-success">Save Settings</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="max-width: 600px; margin-top: 1.5rem;">
+    <div class="card-header">PayPal Configuration</div>
+    <div class="card-body">
+        <p><strong>Current Mode:</strong>
+            <span class="paypal-mode-indicator paypal-{{ paypal_mode }}">{{ paypal_mode | upper }}</span>
+        </p>
+        <p style="margin-top: 1rem; color: #666;">
+            PayPal credentials are configured in the server environment (.env file).
+            Contact your administrator to update API keys.
+        </p>
+    </div>
+</div>
+{% endblock %}

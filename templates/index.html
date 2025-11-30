@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <h1>&#9749; Let Me Mug You</h1>
+    <p class="tagline">Custom Laser Engraving for Your Business</p>
+    <p style="max-width: 600px; margin: 0 auto 2rem; opacity: 0.9;">
+        Elevate your brand with premium laser-engraved drinkware.
+        Perfect for bars, restaurants, corporate gifts, and promotional items.
+    </p>
+    <a href="{{ url_for('main.configurator') }}" class="hero-cta">Start Designing</a>
+</section>
+
+<!-- Product Categories -->
+<section class="section">
+    <h2 class="section-title">Our Products</h2>
+    <div class="categories">
+        <a href="{{ url_for('main.configurator') }}?category=mug" class="category-card">
+            <div class="category-icon">&#127866;</div>
+            <h3>Insulated Tumblers</h3>
+            <p>20oz, 30oz, 40oz stainless steel tumblers. Keep drinks hot or cold for hours.</p>
+        </a>
+        <a href="{{ url_for('main.configurator') }}?category=glass" class="category-card">
+            <div class="category-icon">&#127864;</div>
+            <h3>Glasses</h3>
+            <p>Pint glasses, wine glasses, rocks glasses. Perfect for bars and restaurants.</p>
+        </a>
+        <a href="{{ url_for('main.configurator') }}?category=coaster" class="category-card">
+            <div class="category-icon">&#11044;</div>
+            <h3>Coasters</h3>
+            <p>Round and square stainless steel coasters. Protect surfaces in style.</p>
+        </a>
+        <a href="{{ url_for('main.configurator') }}?category=keychain" class="category-card">
+            <div class="category-icon">&#128273;</div>
+            <h3>Keychains</h3>
+            <p>Portable branding. Take your logo everywhere you go.</p>
+        </a>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="section" style="background: var(--white);">
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <h4>Choose Your Product</h4>
+            <p>Select from our range of premium drinkware and accessories.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <h4>Upload Your Logo</h4>
+            <p>Upload your logo or design. We'll convert it for laser engraving.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <h4>Preview & Adjust</h4>
+            <p>Position and size your design with our interactive preview.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">4</div>
+            <h4>Order & Receive</h4>
+            <p>Complete your order and receive beautifully engraved products.</p>
+        </div>
+    </div>
+</section>
+
+<!-- B2B Section -->
+<section class="b2b-section">
+    <div class="b2b-content">
+        <h2 class="section-title">Perfect for Businesses</h2>
+        <p>Whether you're a bar looking for branded glassware, a restaurant needing custom coasters,
+           or a company ordering promotional items, we've got you covered.</p>
+        <div class="b2b-features">
+            <div class="b2b-feature">
+                <div class="b2b-feature-icon">&#128176;</div>
+                <h4>Bulk Pricing</h4>
+                <p>Better rates for larger orders</p>
+            </div>
+            <div class="b2b-feature">
+                <div class="b2b-feature-icon">&#9889;</div>
+                <h4>Fast Turnaround</h4>
+                <p>Quick production times</p>
+            </div>
+            <div class="b2b-feature">
+                <div class="b2b-feature-icon">&#127919;</div>
+                <h4>Precision Quality</h4>
+                <p>Laser-sharp engravings</p>
+            </div>
+            <div class="b2b-feature">
+                <div class="b2b-feature-icon">&#128230;</div>
+                <h4>Easy Ordering</h4>
+                <p>Simple online process</p>
+            </div>
+        </div>
+        <div style="margin-top: 2rem;">
+            <a href="{{ url_for('main.configurator') }}" class="btn btn-primary">Get Started</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

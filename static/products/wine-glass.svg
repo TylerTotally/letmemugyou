@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 300">
+  <defs>
+    <linearGradient id="glass" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e8e8e8;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.95"/>
+      <stop offset="100%" style="stop-color:#e8e8e8;stop-opacity:0.9"/>
+    </linearGradient>
+  </defs>
+  <!-- Bowl -->
+  <path d="M25 30 C20 120 45 150 70 155 C95 150 120 120 115 30 C115 25 25 25 25 30 Z" fill="url(#glass)" stroke="#ccc" stroke-width="2"/>
+  <!-- Stem -->
+  <rect x="65" y="155" width="10" height="100" fill="url(#glass)" stroke="#ccc" stroke-width="1"/>
+  <!-- Base -->
+  <ellipse cx="70" cy="265" rx="40" ry="10" fill="url(#glass)" stroke="#ccc" stroke-width="2"/>
+  <!-- Highlight -->
+  <path d="M35 40 Q30 80 40 130" stroke="#fff" stroke-width="2" fill="none" opacity="0.5"/>
+  <!-- Label -->
+  <text x="70" y="95" text-anchor="middle" font-family="Arial" font-size="12" fill="#888">Wine</text>
+  <text x="70" y="110" text-anchor="middle" font-family="Arial" font-size="10" fill="#aaa">Glass</text>
+</svg>

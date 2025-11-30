@@ -1,0 +1,71 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Orders{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 1.5rem;">Orders</h2>
+
+<div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card-body">
+        <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+            <div class="form-group" style="margin: 0;">
+                <label>Status</label>
+                <select name="status" class="form-control" style="width: 150px;">
+                    <option value="">All</option>
+                    <option value="pending" {{ 'selected' if status == 'pending' }}>Pending</option>
+                    <option value="processing" {{ 'selected' if status == 'processing' }}>Processing</option>
+                    <option value="completed" {{ 'selected' if status == 'completed' }}>Completed</option>
+                    <option value="shipped" {{ 'selected' if status == 'shipped' }}>Shipped</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin: 0; flex: 1; min-width: 200px;">
+                <label>Search</label>
+                <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Order #, name, email...">
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+            {% if status or search %}
+            <a href="{{ url_for('admin.orders') }}" class="btn">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        {% if orders %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Email</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><strong>{{ order.order_number }}</strong></td>
+                    <td>{{ order.customer_name }}</td>
+                    <td>{{ order.email }}</td>
+                    <td>{{ order.order_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ order.items | length }}</td>
+                    <td>${{ "%.2f"|format(order.total) }}</td>
+                    <td><span class="badge badge-{{ order.status }}">{{ order.status }}</span></td>
+                    <td><span class="badge badge-{{ order.payment_status }}">{{ order.payment_status }}</span></td>
+                    <td><a href="{{ url_for('admin.order_detail', order_id=order.id) }}" class="btn btn-primary btn-sm">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="padding: 2rem; text-align: center; color: #666;">No orders found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Edit' if product else 'Add' }} Product{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h2>{{ 'Edit' if product else 'Add' }} Product</h2>
+    <a href="{{ url_for('admin.products') }}" class="btn">&larr; Back to Products</a>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-group">
+                <label for="name">Product Name *</label>
+                <input type="text" id="name" name="name" class="form-control" required
+                       value="{{ product.name if product else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category *</label>
+                <select id="category" name="category" class="form-control" required>
+                    <option value="">Select category...</option>
+                    <option value="mug" {{ 'selected' if product and product.category == 'mug' }}>Mug</option>
+                    <option value="glass" {{ 'selected' if product and product.category == 'glass' }}>Glass</option>
+                    <option value="coaster" {{ 'selected' if product and product.category == 'coaster' }}>Coaster</option>
+                    <option value="keychain" {{ 'selected' if product and product.category == 'keychain' }}>Keychain</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="base_price">Base Price ($) *</label>
+                <input type="number" id="base_price" name="base_price" class="form-control" required
+                       step="0.01" min="0" value="{{ product.base_price if product else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" class="form-control" rows="3">{{ product.description if product else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="image_url">Image URL</label>
+                <input type="text" id="image_url" name="image_url" class="form-control"
+                       placeholder="/static/products/filename.svg"
+                       value="{{ product.image_url if product else '' }}">
+                <small style="color: #666;">Path to product image (e.g., /static/products/tumbler.svg)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="sizes">Sizes (comma-separated)</label>
+                <input type="text" id="sizes" name="sizes" class="form-control"
+                       placeholder="e.g., 20oz, 30oz, 40oz"
+                       value="{{ product.get_sizes() | join(', ') if product else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="active" {{ 'checked' if not product or product.active }}>
+                    Active (visible on storefront)
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-success">{{ 'Update' if product else 'Add' }} Product</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

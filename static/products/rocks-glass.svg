@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 180">
+  <defs>
+    <linearGradient id="glass" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e8e8e8;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.95"/>
+      <stop offset="100%" style="stop-color:#e8e8e8;stop-opacity:0.9"/>
+    </linearGradient>
+  </defs>
+  <!-- Glass body - short rocks glass -->
+  <path d="M25 25 L20 155 C20 165 140 165 140 155 L135 25 C135 20 25 20 25 25 Z" fill="url(#glass)" stroke="#ccc" stroke-width="2"/>
+  <!-- Glass rim -->
+  <ellipse cx="80" cy="23" rx="55" ry="8" fill="none" stroke="#bbb" stroke-width="2"/>
+  <!-- Bottom -->
+  <ellipse cx="80" cy="158" rx="60" ry="8" fill="none" stroke="#bbb" stroke-width="1"/>
+  <!-- Highlight -->
+  <path d="M35 35 Q32 90 34 140" stroke="#fff" stroke-width="3" fill="none" opacity="0.5"/>
+  <!-- Label -->
+  <text x="80" y="95" text-anchor="middle" font-family="Arial" font-size="14" fill="#888">Rocks</text>
+  <text x="80" y="112" text-anchor="middle" font-family="Arial" font-size="12" fill="#aaa">Glass</text>
+</svg>

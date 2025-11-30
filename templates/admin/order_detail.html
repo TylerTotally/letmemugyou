@@ -1,0 +1,142 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Order {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h2>Order {{ order.order_number }}</h2>
+    <a href="{{ url_for('admin.orders') }}" class="btn">&larr; Back to Orders</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <div>
+        <!-- Order Items -->
+        <div class="card">
+            <div class="card-header">Order Items</div>
+            <div class="card-body" style="padding: 0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Preview</th>
+                            <th>Product</th>
+                            <th>Size</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items %}
+                        <tr>
+                            <td>
+                                {% if item.preview_data_url %}
+                                <img src="{{ item.preview_data_url }}" alt="Preview"
+                                     style="width: 80px; height: 60px; object-fit: contain; border-radius: 4px; background: #f5f5f5;">
+                                {% else %}
+                                <div style="width: 80px; height: 60px; background: #f5f5f5; border-radius: 4px;"></div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ item.product_name }}</strong>
+                                {% if item.logo_filename %}
+                                <br><small>Logo: {{ item.logo_filename }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.size or '-' }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ "%.2f"|format(item.unit_price) }}</td>
+                            <td><strong>${{ "%.2f"|format(item.line_total) }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5" style="text-align: right;">Subtotal:</td>
+                            <td>${{ "%.2f"|format(order.subtotal) }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" style="text-align: right;">Tax:</td>
+                            <td>${{ "%.2f"|format(order.tax) }}</td>
+                        </tr>
+                        <tr style="font-weight: bold; font-size: 1.1rem;">
+                            <td colspan="5" style="text-align: right;">Total:</td>
+                            <td>${{ "%.2f"|format(order.total) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        {% if order.notes %}
+        <div class="card">
+            <div class="card-header">Order Notes</div>
+            <div class="card-body">
+                <p>{{ order.notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <!-- Status Update -->
+        <div class="card">
+            <div class="card-header">Order Status</div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.update_order_status', order_id=order.id) }}">
+                    <div class="form-group">
+                        <label>Current Status</label>
+                        <select name="status" class="form-control">
+                            <option value="pending" {{ 'selected' if order.status == 'pending' }}>Pending</option>
+                            <option value="processing" {{ 'selected' if order.status == 'processing' }}>Processing</option>
+                            <option value="completed" {{ 'selected' if order.status == 'completed' }}>Completed</option>
+                            <option value="shipped" {{ 'selected' if order.status == 'shipped' }}>Shipped</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </form>
+
+                <hr style="margin: 1.5rem 0;">
+
+                <p><strong>Payment Status:</strong>
+                    <span class="badge badge-{{ order.payment_status }}">{{ order.payment_status }}</span>
+                </p>
+                {% if order.paypal_order_id %}
+                <p><small>PayPal ID: {{ order.paypal_order_id }}</small></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="card">
+            <div class="card-header">Customer Information</div>
+            <div class="card-body">
+                <p><strong>{{ order.customer_name }}</strong></p>
+                {% if order.business_name %}
+                <p>{{ order.business_name }}</p>
+                {% endif %}
+                <p>{{ order.email }}</p>
+                {% if order.phone %}
+                <p>{{ order.phone }}</p>
+                {% endif %}
+
+                <hr style="margin: 1rem 0;">
+
+                <p><strong>Shipping Address:</strong></p>
+                <p>{{ order.address_line1 }}</p>
+                {% if order.address_line2 %}
+                <p>{{ order.address_line2 }}</p>
+                {% endif %}
+                <p>{{ order.city }}, {{ order.state }} {{ order.zip_code }}</p>
+            </div>
+        </div>
+
+        <!-- Order Info -->
+        <div class="card">
+            <div class="card-header">Order Info</div>
+            <div class="card-body">
+                <p><strong>Order Date:</strong><br>{{ order.order_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

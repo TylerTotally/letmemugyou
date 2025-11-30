@@ -1,0 +1,72 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 1.5rem;">Dashboard</h2>
+
+<div style="margin-bottom: 1rem;">
+    <span class="paypal-mode-indicator paypal-{{ paypal_mode }}">
+        PayPal: {{ paypal_mode | upper }}
+    </span>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ total_orders }}</div>
+        <div class="stat-label">Total Orders</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">${{ "%.2f"|format(total_revenue) }}</div>
+        <div class="stat-label">Total Revenue</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ monthly_orders }}</div>
+        <div class="stat-label">Orders This Month</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">${{ "%.2f"|format(monthly_revenue) }}</div>
+        <div class="stat-label">Revenue This Month</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" style="color: var(--warning);">{{ pending_orders }}</div>
+        <div class="stat-label">Pending Orders</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Recent Orders</div>
+    <div class="card-body" style="padding: 0;">
+        {% if recent_orders %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td><strong>{{ order.order_number }}</strong></td>
+                    <td>{{ order.customer_name }}</td>
+                    <td>{{ order.order_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>${{ "%.2f"|format(order.total) }}</td>
+                    <td><span class="badge badge-{{ order.status }}">{{ order.status }}</span></td>
+                    <td><span class="badge badge-{{ order.payment_status }}">{{ order.payment_status }}</span></td>
+                    <td><a href="{{ url_for('admin.order_detail', order_id=order.id) }}" class="btn btn-primary btn-sm">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="padding: 2rem; text-align: center; color: #666;">No orders yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
