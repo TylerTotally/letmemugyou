@@ -5,6 +5,7 @@ let logoImage = null;
 let currentProduct = null;
 let uploadedLogoUrl = null;
 let uploadedLogoFilename = null;
+let originalLogoFile = null;  // Store original file for reprocessing
 
 // Initialize canvas
 document.addEventListener('DOMContentLoaded', function() {
@@ -41,6 +42,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.files.length > 0) {
             handleFileUpload(e.target.files[0]);
         }
+    });
+
+    // Set up logo mode change handlers - reprocess when mode changes
+    const modeRadios = document.querySelectorAll('input[name="logo-mode"]');
+    modeRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (originalLogoFile) {
+                handleFileUpload(originalLogoFile);
+            }
+        });
     });
 
     // Check for category in URL
@@ -139,6 +150,11 @@ function loadProductImage(imageUrl) {
     }, { crossOrigin: 'anonymous' });
 }
 
+function getSelectedLogoMode() {
+    const selected = document.querySelector('input[name="logo-mode"]:checked');
+    return selected ? selected.value : 'bw';
+}
+
 function handleFileUpload(file) {
     // Validate file
     const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
@@ -152,9 +168,16 @@ function handleFileUpload(file) {
         return;
     }
 
-    // Upload to server
+    // Store original file for reprocessing when mode changes
+    originalLogoFile = file;
+
+    // Get selected processing mode
+    const mode = getSelectedLogoMode();
+
+    // Upload to server with processing mode
     const formData = new FormData();
     formData.append('logo', file);
+    formData.append('mode', mode);
 
     fetch('/api/upload-logo', {
         method: 'POST',
@@ -256,6 +279,7 @@ function deleteSelected() {
         logoImage = null;
         uploadedLogoUrl = null;
         uploadedLogoFilename = null;
+        originalLogoFile = null;
 
         // Reset upload UI
         document.getElementById('logo-preview').style.display = 'none';

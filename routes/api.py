@@ -2,7 +2,8 @@ import os
 import uuid
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFilter
+import numpy as np
 from models import Product, db
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
@@ -47,9 +48,50 @@ def process_logo_to_bw(image_path, output_path):
     return img.size  # Return dimensions
 
 
+def process_logo_transparent(image_path, output_path):
+    """Keep the original logo with transparency preserved."""
+    img = Image.open(image_path)
+
+    # Convert to RGBA to ensure transparency support
+    if img.mode != 'RGBA':
+        img = img.convert('RGBA')
+
+    img.save(output_path, 'PNG')
+    return img.size
+
+
+def remove_white_background(image_path, output_path, tolerance=30):
+    """Remove white/near-white background and make it transparent."""
+    img = Image.open(image_path)
+
+    # Convert to RGBA
+    if img.mode != 'RGBA':
+        img = img.convert('RGBA')
+
+    # Get image data as numpy array
+    data = np.array(img)
+
+    # Calculate how "white" each pixel is
+    # A pixel is considered white if R, G, B are all above (255 - tolerance)
+    r, g, b, a = data[:, :, 0], data[:, :, 1], data[:, :, 2], data[:, :, 3]
+
+    # Find pixels that are white or near-white
+    white_threshold = 255 - tolerance
+    white_mask = (r >= white_threshold) & (g >= white_threshold) & (b >= white_threshold)
+
+    # Make white pixels transparent
+    data[:, :, 3] = np.where(white_mask, 0, a)
+
+    # Create new image from modified data
+    result = Image.fromarray(data, 'RGBA')
+
+    result.save(output_path, 'PNG')
+    return result.size
+
+
 @api_bp.route('/upload-logo', methods=['POST'])
 def upload_logo():
-    """Handle logo upload, validate, and convert to B&W."""
+    """Handle logo upload, validate, and process based on selected mode."""
     if 'logo' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
 
@@ -59,6 +101,11 @@ def upload_logo():
 
     if not allowed_file(file.filename):
         return jsonify({'error': 'File type not allowed. Use PNG, JPG, or SVG.'}), 400
+
+    # Get processing mode: 'bw', 'transparent', or 'remove_bg'
+    mode = request.form.get('mode', 'bw')
+    if mode not in ('bw', 'transparent', 'remove_bg'):
+        mode = 'bw'
 
     # Check file size
     file.seek(0, 2)
@@ -70,7 +117,10 @@ def upload_logo():
     # Generate unique filename
     ext = file.filename.rsplit('.', 1)[1].lower()
     unique_name = f"{uuid.uuid4().hex}.{ext}"
-    processed_name = f"{uuid.uuid4().hex}_bw.png"
+
+    # Name processed file based on mode
+    mode_suffix = {'bw': '_bw', 'transparent': '_trans', 'remove_bg': '_nobg'}
+    processed_name = f"{uuid.uuid4().hex}{mode_suffix[mode]}.png"
 
     upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'logos')
     os.makedirs(upload_folder, exist_ok=True)
@@ -80,10 +130,17 @@ def upload_logo():
 
     file.save(original_path)
 
-    # Process to B&W (skip for SVG)
+    # Process based on mode (skip processing for SVG)
     if ext != 'svg':
         try:
-            dimensions = process_logo_to_bw(original_path, processed_path)
+            if mode == 'bw':
+                dimensions = process_logo_to_bw(original_path, processed_path)
+            elif mode == 'transparent':
+                dimensions = process_logo_transparent(original_path, processed_path)
+            elif mode == 'remove_bg':
+                dimensions = remove_white_background(original_path, processed_path)
+            else:
+                dimensions = process_logo_to_bw(original_path, processed_path)
         except Exception as e:
             os.remove(original_path)
             return jsonify({'error': f'Image processing failed: {str(e)}'}), 400
@@ -99,7 +156,8 @@ def upload_logo():
         'processed_url': f'/static/uploads/logos/{processed_name}',
         'filename': processed_name,
         'width': dimensions[0],
-        'height': dimensions[1]
+        'height': dimensions[1],
+        'mode': mode
     })
 
 
